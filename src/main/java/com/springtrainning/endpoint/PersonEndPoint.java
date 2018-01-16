@@ -1,57 +1,83 @@
 package com.springtrainning.endpoint;
 
 
-import com.springtrainning.error.CustomErrorType;
 import com.springtrainning.model.Person;
-import com.springtrainning.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TransactionRequiredException;
+import javax.transaction.Transactional;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/people")
 public class PersonEndPoint {
 
-    private final PersonRepository personDAO;
+    @PersistenceContext
+    private final EntityManager manager;
 
     @Autowired
-    public PersonEndPoint(PersonRepository personDAO) {
-        this.personDAO = personDAO;
+    public PersonEndPoint(EntityManager manager) {
+        this.manager = manager;
     }
+
 
     @GetMapping
     public ResponseEntity<?> listAll(){
-        return new ResponseEntity<>(personDAO.findAll(), HttpStatus.OK);
+        try {
+            return new ResponseEntity<>(manager.createQuery("SELECT p FROM Person p").getResultList(), HttpStatus.OK);
+        } catch (IllegalArgumentException e ){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
     }
 
-    @GetMapping(path = "/{id}")
-    public ResponseEntity<?> getPersonById(@PathVariable("id") Long id){
-        Person person = personDAO.findOne(id);
-        if (person == null)
-            return new ResponseEntity<>(new CustomErrorType("Person not found"), HttpStatus.NOT_FOUND);
-        return new ResponseEntity<>(person, HttpStatus.OK);
+
+    @GetMapping(path = "/findById/{id}")
+    public ResponseEntity<?> findPersonByName(@PathVariable(value ="id") Long id){
+        try{
+            return new ResponseEntity<>(manager.find(Person.class, id), HttpStatus.OK);
+        } catch (IllegalArgumentException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
-    @GetMapping(path = "/findByName/{name}")
-    public ResponseEntity<?> findPersonByName(@PathVariable String name){
-        return new ResponseEntity<>(personDAO.findByNameIgnoreCaseContaining(name), HttpStatus.OK);
-    }
-
+    @Transactional
     @PostMapping
-    public ResponseEntity<?> save(@RequestBody Person person){
-        return new ResponseEntity<>(personDAO.save(person), HttpStatus.CREATED);
+    public ResponseEntity<?> save(@Valid @RequestBody Person person){
+        try {
+            manager.persist(person);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (TransactionRequiredException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
-    @DeleteMapping(path = "/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id){
-        personDAO.delete(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+    @Transactional
+    @DeleteMapping
+    public @ResponseBody ResponseEntity<?> remove(@Valid @RequestBody Person person) {
+        try {
+            Person removedPerson = manager.find(Person.class, person.getId());
+            manager.remove(removedPerson);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (IllegalArgumentException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
+    @Transactional
     @PutMapping
     public ResponseEntity<?> update(@RequestBody Person person){
-        personDAO.save(person);
-        return new ResponseEntity<>(HttpStatus.OK);
+        try {
+            manager.merge(person);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (TransactionRequiredException e ){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 }
