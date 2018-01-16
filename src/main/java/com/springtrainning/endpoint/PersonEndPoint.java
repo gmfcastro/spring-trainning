@@ -33,9 +33,9 @@ public class PersonEndPoint {
         return new ResponseEntity<>(person, HttpStatus.OK);
     }
 
-    @GetMapping(path = "/{name}")
+    @GetMapping(path = "/findByName/{name}")
     public ResponseEntity<?> findPersonByName(@PathVariable String name){
-        return new ResponseEntity<>(personDAO.findByName(name), HttpStatus.OK);
+        return new ResponseEntity<>(personDAO.findByNameIgnoreCaseContaining(name), HttpStatus.OK);
     }
 
     @PostMapping
