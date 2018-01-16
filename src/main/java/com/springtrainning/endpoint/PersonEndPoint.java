@@ -37,14 +37,27 @@ public class PersonEndPoint {
 
     }
 
-
-    @GetMapping(path = "/findById/{id}")
-    public ResponseEntity<?> findPersonByName(@PathVariable(value ="id") Long id){
+    private ResponseEntity<?> findById(Long id){
         try{
-            return new ResponseEntity<>(manager.find(Person.class, id), HttpStatus.OK);
+            if ((manager.find(Person.class, id)) != null) {
+                return new ResponseEntity<>(manager.find(Person.class, id), HttpStatus.OK);
+            } else
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
         } catch (IllegalArgumentException e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+
+
+    @GetMapping(path = "/findById/{id}")
+    public ResponseEntity<?> findPersonById(@PathVariable(value ="id") Long id){
+        return findById(id);
+    }
+
+    @GetMapping(path = "/findById/")
+    public ResponseEntity<?> findPersonByNameDom(@RequestParam(value ="id") Long id){
+        return findById(id);
     }
 
     @Transactional
@@ -72,7 +85,7 @@ public class PersonEndPoint {
 
     @Transactional
     @PutMapping
-    public ResponseEntity<?> update(@RequestBody Person person){
+    public ResponseEntity<?> update(@Valid @RequestBody Person person){
         try {
             manager.merge(person);
             return new ResponseEntity<>(HttpStatus.OK);
