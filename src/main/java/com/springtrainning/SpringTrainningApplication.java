@@ -1,5 +1,6 @@
 package com.springtrainning;
 
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

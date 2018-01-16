@@ -12,31 +12,37 @@ import javax.persistence.MappedSuperclass;
 /*
  * Faz com que a classe não seja criada no banco de dados e seja apenas extendida.
 */
+
+
+/*
+* OBS: o mongo usa String para chave primaria, alterar para long quando usar o MYSQL
+* */
+
 @MappedSuperclass
 public class AbstractEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private String id;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) { return true; }
-        if (o == null || getClass() != o.getClass()) { return false; }
-        AbstractEntity that = (AbstractEntity) o;
-        return id == that.id;
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) { return true; }
+    if (o == null || getClass() != o.getClass()) { return false; }
+    AbstractEntity that = (AbstractEntity) o;
+    return Objects.equals(id, that.id);
+  }
 
-    @Override
-    public int hashCode() {
+  @Override
+  public int hashCode() {
 
-        return Objects.hash(id);
-    }
+    return Objects.hash(id);
+  }
 
-    public long getId() {
-        return id;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public void setId(long id) {
-        this.id = id;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 }

@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 public class PersonEndPoint {
 
     private final PersonRepository personDAO;
-
     @Autowired
     public PersonEndPoint(PersonRepository personDAO) {
         this.personDAO = personDAO;
@@ -26,7 +25,7 @@ public class PersonEndPoint {
     }
 
     @GetMapping(path = "/{id}")
-    public ResponseEntity<?> getPersonById(@PathVariable("id") Long id){
+    public ResponseEntity<?> getPersonById(@PathVariable("id") String id){
         Person person = personDAO.findOne(id);
         if (person == null)
             return new ResponseEntity<>(new CustomErrorType("Person not found"), HttpStatus.NOT_FOUND);
@@ -44,7 +43,7 @@ public class PersonEndPoint {
     }
 
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id){
+    public ResponseEntity<?> delete(@PathVariable String id){
         personDAO.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
