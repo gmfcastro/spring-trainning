@@ -17,6 +17,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
+
+/**
+ * @Service - indica que a classe irá conter regras de negócio do sistema.
+ * */
 @Service
 public class PersonService {
 

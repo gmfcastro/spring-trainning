@@ -13,18 +13,28 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
+
+/**
+ * Annotations
+ *  @RestController - irá incluir duas anotações a classe, sendo elas:
+ *    @Controller - indica que a classe é um controlador Spring MVC.
+ *    @ResponseBody - indica ao controlador que o objeto de retorno é automaticamente serializado para JSON e enviado no corpo da requisição.
+ *  @Autowired - Marca um método para ser ligado automaticamente com as injeção de dependencia do Spring.
+ *  @GetMapping - é um atalho para @RequestMapping(method = RequestMethod.GET).
+ *  @RequestBody - indica que o parâmetro deve ser vinculado ao corpo da requisição HTTP.
+ *  @Valid - marca um método @RequestBody, para ser automaticamente validado.
+ *  @RequestParam - Indica que os parâmetros do método deve ser vinculado ao parâmetro da requisição web
+**/
 
 @RestController
 @RequestMapping("/people")
 public class PersonController  {
 
   @Autowired
-  PersonService personService;
+  private PersonService personService;
 
 
   @GetMapping
@@ -32,25 +42,22 @@ public class PersonController  {
     return personService.findAll();
   }
 
-  @GetMapping(path = "/find/{id}")
+  @GetMapping(path = "/find/")
   public ResponseEntity<?> findById(@RequestParam(value ="id") String id){
     return personService.findById(id);
   }
 
-  @Transactional
   @PostMapping
   public ResponseEntity<?> save(@Valid @RequestBody Person person){
     return personService.save(person);
   }
 
-  @Transactional
   @DeleteMapping
-  public @ResponseBody ResponseEntity<?> remove(@Valid @RequestBody Person person) {
+  public ResponseEntity<?> remove(@Valid @RequestBody Person person) {
     personService.delete(person);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @Transactional
   @PutMapping
   public ResponseEntity<?> update(@Valid @RequestBody Person person){
     personService.save(person);

@@ -9,14 +9,14 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 
-/*
- * Faz com que a classe não seja criada no banco de dados e seja apenas extendida.
-*/
+/**
+ * @MappedSuperclass - Indica que a classe será mapeada nas entidades que herdarem dela, assim ela não possui uma tabela no banco .
+ * implements Serializable - utiliza-se quando é pretendido armazenar uma copia do objeto, e envia-lo para outro processo ou através da rede.
+ * @Id - Especifica o atributo como primary key.
+ * @GeneratedValue - Deve ser utilizado junto a uma @id annotation, e especifica a estratégia de geração de primary key.
+ * @Override equals & hashCode -
+ * */
 
-
-/*
-* OBS: o mongo usa String para chave primaria, alterar para long quando usar o MYSQL
-* */
 
 @MappedSuperclass
 public class AbstractEntity implements Serializable {
