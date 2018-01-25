@@ -29,28 +29,58 @@ public class PersonService {
 
 
   public ResponseEntity<?> findAll(){
-    return new ResponseEntity<>(personRepository.findAll(), HttpStatus.OK);
+    try {
+      return new ResponseEntity<>(personRepository.findAll(), HttpStatus.OK);
+    } catch (Exception e) {
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   public ResponseEntity<?> findById(@RequestParam(value ="id") String id){
-    return new ResponseEntity<>(personRepository.findOne(id), HttpStatus.OK);
+    try {
+      return new ResponseEntity<>(personRepository.findOne(id), HttpStatus.OK);
+    } catch(IllegalArgumentException i){
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
   }
 
   @Transactional
   public ResponseEntity<?> save(@Valid @RequestBody Person person){
-    return new ResponseEntity<>(personRepository.save(person), HttpStatus.CREATED);
+    try {
+      return new ResponseEntity<>(personRepository.save(person), HttpStatus.CREATED);
+    } catch (Exception e){
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Transactional
   public @ResponseBody
   ResponseEntity<?> delete(@Valid @RequestBody Person person) {
-    personRepository.delete(person);
-    return new ResponseEntity<>(HttpStatus.OK);
+    try {
+      if (personRepository.findOne(person.getId()) != null){
+        personRepository.delete(person);
+        return new ResponseEntity<>(HttpStatus.OK);
+      } else {
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+      }
+    } catch (Exception e){
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
   }
 
   @Transactional
   public ResponseEntity<?> update(@Valid @RequestBody Person person){
-    personRepository.save(person);
-    return new ResponseEntity<>(HttpStatus.OK);
+    try {
+      if (personRepository.findOne(person.getId()) != null) {
+        personRepository.save(person);
+        return new ResponseEntity<>(HttpStatus.OK);
+      } else {
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+      }
+    } catch (Exception e){
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
